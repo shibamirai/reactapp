@@ -1,30 +1,38 @@
-import { JSX, useState } from 'react';
+import React, { JSX, useState } from 'react';
 import { Head } from '@inertiajs/react';
+import axios from 'axios';
 
 export default function Hello(): JSX.Element {
-  const [inputValue, setInputValue] = useState('');
-  const [message, setMessage] = useState('Hello!!');
+  const [inputValue, setInputValue] = useState(0);
+  const [serverMessage, setServerMessage] = useState('type a number:');
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    setMessage('こんにちは、' + inputValue + 'さん！');
+    axios.post('/update-message', { number: inputValue })
+      .then(response => {
+        console.log(response);
+        setServerMessage(response.data.message);
+      })
+      .catch(error => {
+        console.error('Error updating message:', error);
+      });
   };
 
   return (
     <div style={{ padding: '20px' }}>
-      <Head title="Hello" />
+      <Head title="Welcome" />
       <h1 style={{
         fontSize: '30px', paddingBottom: '10px'
-      }}>Hello Page</h1>
+      }}>Welcome Page</h1>
       <p style={{
         fontSize: '20px'
-      }}>{ message }</p>
+      }}>{ serverMessage }</p>
       <form onSubmit={ handleSubmit } style={{ marginTop: '20px' }}>
         <input
-          type="text"
+          type="number"
           value={ inputValue }
-          onChange={ (e) => setInputValue(e.target.value) }
-          placeholder="名前を入力"
+          onChange={ (e) => setInputValue(+e.target.value) }
+          placeholder="新しいメッセージを入力"
           style={{
             padding: '8px', fontSize: '16px', width: '300px'
           }}
